@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
+    <link rel="manifest" href="manifest.json" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scanner Code-Barres</title>
@@ -79,6 +80,32 @@
       } else {
         resultDiv.textContent = "Caméra ou Quagga non supportés.";
       }
+    </script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("service-worker.js")
+          .then(() => console.log("Service Worker enregistré"))
+          .catch((err) => console.log("Erreur Service Worker :", err));
+      }
+    </script>
+    <script>
+      let deferredPrompt;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // Affiche un bouton personnalisé
+        const btn = document.createElement("button");
+        btn.textContent = "Installer l'application";
+        document.body.appendChild(btn);
+        btn.addEventListener("click", async () => {
+          deferredPrompt.prompt();
+          const choiceResult = await deferredPrompt.userChoice;
+          console.log(choiceResult.outcome); // 'accepted' ou 'dismissed'
+          deferredPrompt = null;
+          btn.remove();
+        });
+      });
     </script>
   </body>
 </html>
