@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scanner Code-Barres</title>
+    <script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: #f0f0f0;
+        margin: 0;
+      }
+      #scanner-container {
+        position: relative;
+        width: 90%;
+        max-width: 500px;
+        border: 2px solid #555;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      #result {
+        margin-top: 20px;
+        font-size: 1.2em;
+        background: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Scanner un code-barres</h2>
+    <div id="scanner-container"></div>
+    <div id="result">Aucun code détecté</div>
+
+    <script>
+      const resultDiv = document.getElementById("result");
+
+      if (navigator.mediaDevices && typeof Quagga !== "undefined") {
+        Quagga.init(
+          {
+            inputStream: {
+              type: "LiveStream",
+              target: document.querySelector("#scanner-container"),
+              constraints: {
+                facingMode: "environment",
+              },
+            },
+            decoder: {
+              readers: [
+                "code_128_reader",
+                "ean_reader",
+                "ean_8_reader",
+                "upc_reader",
+                "upc_e_reader",
+              ],
+            },
+          },
+          function (err) {
+            if (err) {
+              console.error(err);
+              resultDiv.textContent = "Erreur d'initialisation : " + err;
+              return;
+            }
+            Quagga.start();
+          }
+        );
+
+        Quagga.onDetected(function (data) {
+          const code = data.codeResult.code;
+          resultDiv.textContent = "Code détecté : " + code;
+          console.log("Code détecté :", code);
+        });
+      } else {
+        resultDiv.textContent = "Caméra ou Quagga non supportés.";
+      }
+    </script>
+  </body>
+</html>
